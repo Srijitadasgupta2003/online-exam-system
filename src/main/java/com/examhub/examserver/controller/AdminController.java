@@ -1,9 +1,17 @@
 package com.examhub.examserver.controller;
 
+import com.examhub.examserver.domain.dto.admin.CreateCourseRequest;
+import com.examhub.examserver.domain.dto.response.CourseResponse;
+import com.examhub.examserver.domain.dto.response.EnrollmentResponse;
 import com.examhub.examserver.domain.entity.User;
+import com.examhub.examserver.domain.enums.EnrollmentStatus;
 import com.examhub.examserver.domain.enums.Role;
 import com.examhub.examserver.repository.UserRepo;
+import com.examhub.examserver.service.CourseService;
+import com.examhub.examserver.service.EnrollmentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +25,8 @@ import java.util.stream.Collectors;
 public class AdminController {
 
     private final UserRepo userRepo;
+    private final CourseService courseService;
+    private final EnrollmentService enrollmentService;
 
     //Admin Dashboard
     @GetMapping("/dashboard")
@@ -43,5 +53,28 @@ public class AdminController {
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(students);
+    }
+
+    // --- Course Management ---
+    @PostMapping("/courses")
+    public ResponseEntity<CourseResponse> createCourse(@Valid @RequestBody CreateCourseRequest request) {
+        return new ResponseEntity<>(courseService.createCourse(request), HttpStatus.CREATED);
+    }
+
+    @PutMapping("/courses/{id}")
+    public ResponseEntity<CourseResponse> updateCourse(@PathVariable Long id, @Valid @RequestBody CreateCourseRequest request) {
+        return ResponseEntity.ok(courseService.updateCourse(id, request));
+    }
+
+    // --- Enrollment Management ---
+    @GetMapping("/enrollments")
+    public ResponseEntity<List<EnrollmentResponse>> getAllEnrollmentRequests() {
+        return ResponseEntity.ok(enrollmentService.getEnrollmentsByStatus(EnrollmentStatus.PENDING));
+    }
+
+    @PatchMapping("/enrollments/{id}/approve")
+    public ResponseEntity<EnrollmentResponse> approve(@PathVariable Long id) {
+        // In your service, this should set status to ACTIVE
+        return ResponseEntity.ok(enrollmentService.updateStatus(id, EnrollmentStatus.PAID));
     }
 }
