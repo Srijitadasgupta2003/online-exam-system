@@ -32,7 +32,9 @@ public class SecurityConfig {
                 // Configure URL Permissions
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/**").permitAll() // Anyone can register or log in
+                        .requestMatchers("/api/v1/users/me").authenticated() // Just check if their Bearer token is valid and hasn't expired.
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN") // Only Admins can access these
+                        .requestMatchers("/api/v1/student/**").hasRole("STUDENT") //Only students can access this
                         .anyRequest().authenticated() // Every other request requires a valid JWT
                 )
 
