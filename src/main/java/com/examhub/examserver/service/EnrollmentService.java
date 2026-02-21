@@ -2,6 +2,7 @@ package com.examhub.examserver.service;
 
 import com.examhub.examserver.domain.dto.response.EnrollmentResponse;
 import com.examhub.examserver.domain.enums.EnrollmentStatus;
+import com.examhub.examserver.domain.dto.student.EnrollmentRequest;
 
 import java.util.List;
 
@@ -11,7 +12,7 @@ public interface EnrollmentService {
     List<EnrollmentResponse> getEnrollmentsByStatus(EnrollmentStatus status);
 
     // A student enrolls in a course
-    EnrollmentResponse enrollStudent(Long courseId, Long userId);
+    EnrollmentResponse enrollStudent(Long courseId, Long userId, EnrollmentRequest request);
 
     // Get all enrollments for a specific user
     List<EnrollmentResponse> getEnrollmentsByUser(Long userId);

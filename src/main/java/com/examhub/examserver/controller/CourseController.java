@@ -12,17 +12,12 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/courses")
+@RequestMapping("/api/v1/courses") // Unified prefix
 @RequiredArgsConstructor
 public class CourseController {
-
     private final CourseService courseService;
 
-    @PostMapping
-    public ResponseEntity<CourseResponse> createCourse(@Valid @RequestBody CreateCourseRequest request) {
-        return new ResponseEntity<>(courseService.createCourse(request), HttpStatus.CREATED);
-    }
-
+    // Students AND Admins can use these (GET)
     @GetMapping
     public ResponseEntity<List<CourseResponse>> getAllCourses() {
         return ResponseEntity.ok(courseService.getAllCourses());
@@ -31,6 +26,12 @@ public class CourseController {
     @GetMapping("/{id}")
     public ResponseEntity<CourseResponse> getCourseById(@PathVariable Long id) {
         return ResponseEntity.ok(courseService.getCourseById(id));
+    }
+
+    // ONLY Admins can use these (POST, PUT, DELETE)
+    @PostMapping
+    public ResponseEntity<CourseResponse> createCourse(@Valid @RequestBody CreateCourseRequest request) {
+        return new ResponseEntity<>(courseService.createCourse(request), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")

@@ -54,27 +54,4 @@ public class AdminController {
 
         return ResponseEntity.ok(students);
     }
-
-    // --- Course Management ---
-    @PostMapping("/courses")
-    public ResponseEntity<CourseResponse> createCourse(@Valid @RequestBody CreateCourseRequest request) {
-        return new ResponseEntity<>(courseService.createCourse(request), HttpStatus.CREATED);
-    }
-
-    @PutMapping("/courses/{id}")
-    public ResponseEntity<CourseResponse> updateCourse(@PathVariable Long id, @Valid @RequestBody CreateCourseRequest request) {
-        return ResponseEntity.ok(courseService.updateCourse(id, request));
-    }
-
-    // --- Enrollment Management ---
-    @GetMapping("/enrollments")
-    public ResponseEntity<List<EnrollmentResponse>> getAllEnrollmentRequests() {
-        return ResponseEntity.ok(enrollmentService.getEnrollmentsByStatus(EnrollmentStatus.PENDING));
-    }
-
-    @PatchMapping("/enrollments/{id}/approve")
-    public ResponseEntity<EnrollmentResponse> approve(@PathVariable Long id) {
-        // In your service, this should set status to ACTIVE
-        return ResponseEntity.ok(enrollmentService.updateStatus(id, EnrollmentStatus.PAID));
-    }
 }

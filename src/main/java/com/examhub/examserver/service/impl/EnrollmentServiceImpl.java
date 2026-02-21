@@ -1,6 +1,7 @@
 package com.examhub.examserver.service.impl;
 
 import com.examhub.examserver.domain.dto.response.EnrollmentResponse;
+import com.examhub.examserver.domain.dto.student.EnrollmentRequest;
 import com.examhub.examserver.domain.entity.Course;
 import com.examhub.examserver.domain.entity.Enrollment;
 import com.examhub.examserver.domain.entity.User;
@@ -31,8 +32,8 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
     @Override
     @Transactional
-    public EnrollmentResponse enrollStudent(Long courseId, Long userId) {
-        // 1. Basic Existence Checks
+    public EnrollmentResponse enrollStudent(Long courseId, Long userId, EnrollmentRequest request) {
+        // Basic Existence Checks
         Course course = courseRepo.findById(courseId)
                 .orElseThrow(() -> new ResourceNotFoundException("Course not found"));
 
@@ -43,14 +44,14 @@ public class EnrollmentServiceImpl implements EnrollmentService {
             throw new IllegalStateException("Cannot enroll in an inactive course");
         }
 
-        // 2. Business Logic Checks using your custom repo methods
+        // Business Logic Checks using your custom repo methods
         // Check for ANY existing enrollment (Clears 'findByUserIdAndCourseId' warning)
         Optional<Enrollment> existing = enrollmentRepo.findByUserIdAndCourseId(userId, courseId);
         if (existing.isPresent()) {
             throw new UserAlreadyExistsException("You are already linked to this course.");
         }
 
-        // Check for specific PENDING state (Clears 'existsByUserIdAndCourseIdAndStatus' warning)
+        // Check for specific PENDING state
         boolean isPending = enrollmentRepo.existsByUserIdAndCourseIdAndStatus(
                 userId, courseId, EnrollmentStatus.PENDING
         );
@@ -58,11 +59,13 @@ public class EnrollmentServiceImpl implements EnrollmentService {
             throw new IllegalStateException("Your previous enrollment request is still being processed.");
         }
 
-        // 3. Create and Save
+        // Create and Save
         Enrollment enrollment = new Enrollment();
         enrollment.setCourse(course);
         enrollment.setUser(user);
         enrollment.setStatus(EnrollmentStatus.PENDING); // Assuming default status
+        enrollment.setPaymentMode(request.paymentMode());
+        enrollment.setTransactionReference(request.transactionReference());
 
         return enrollmentMapper.toResponse(enrollmentRepo.save(enrollment));
     }

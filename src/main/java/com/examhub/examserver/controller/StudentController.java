@@ -29,19 +29,4 @@ public class StudentController {
                 "info", "Here you will be able to see your available exams."
         ));
     }
-
-    // Browsing (even students need to see courses)
-    @GetMapping("/courses")
-    public ResponseEntity<List<CourseResponse>> getAvailableCourses() {
-        return ResponseEntity.ok(courseService.getAllCourses());
-    }
-
-    // Enrolling
-    @PostMapping("/enroll/{courseId}")
-    public ResponseEntity<EnrollmentResponse> enrollInCourse(@PathVariable Long courseId) {
-        // In a real app, you get the userId from the JWT/SecurityContext
-        // for now, we'll assume you pass it or have a helper.
-        Long currentUserId = 1L; // Placeholder
-        return new ResponseEntity<>(enrollmentService.enrollStudent(courseId, currentUserId), HttpStatus.CREATED);
-    }
 }

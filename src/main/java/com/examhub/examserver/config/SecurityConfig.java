@@ -2,6 +2,7 @@ package com.examhub.examserver.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -31,11 +32,26 @@ public class SecurityConfig {
 
                 // Configure URL Permissions
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/**").permitAll() // Anyone can register or log in
-                        .requestMatchers("/api/v1/users/me").authenticated() // Just check if their Bearer token is valid and hasn't expired.
-                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN") // Only Admins can access these
-                        .requestMatchers("/api/v1/student/**").hasRole("STUDENT") //Only students can access this
-                        .anyRequest().authenticated() // Every other request requires a valid JWT
+                        .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers("/api/v1/users/me").authenticated()
+
+                        // Course Access
+                        .requestMatchers(HttpMethod.GET, "/api/v1/courses/**").hasAnyRole("STUDENT", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/courses/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/courses/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/courses/**").hasRole("ADMIN")
+
+                        // Enrollment Access
+                        .requestMatchers(HttpMethod.GET, "/api/v1/enrollments/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/enrollments/**").hasRole("STUDENT")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/enrollments/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/enrollments/**").hasRole("ADMIN")
+
+                        // Broad Prefix Rules (Catch-all for Dashboards/Profiles)
+                        .requestMatchers("/api/v1/student/**").hasRole("STUDENT")
+                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+
+                        .anyRequest().authenticated()
                 )
 
                 // Make the session Stateless
