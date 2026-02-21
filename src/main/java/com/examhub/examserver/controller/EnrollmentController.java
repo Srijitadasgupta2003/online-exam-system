@@ -1,13 +1,16 @@
 package com.examhub.examserver.controller;
 
 import com.examhub.examserver.domain.dto.response.EnrollmentResponse;
+import com.examhub.examserver.domain.entity.User;
 import com.examhub.examserver.domain.enums.EnrollmentStatus;
 import com.examhub.examserver.service.EnrollmentService;
 import com.examhub.examserver.domain.dto.student.EnrollmentRequest;
+import com.examhub.examserver.domain.dto.admin.ApproveEnrollmentRequest;
 import lombok.RequiredArgsConstructor;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,9 +23,15 @@ public class EnrollmentController {
     private final EnrollmentService enrollmentService;
 
     // Student joins a course
-    @PostMapping("/course/{courseId}/user/{userId}")
-    public ResponseEntity<EnrollmentResponse> enroll(@PathVariable Long courseId, @PathVariable Long userId, @Valid @RequestBody EnrollmentRequest request) {
-        return new ResponseEntity<>(enrollmentService.enrollStudent(courseId, userId, request), HttpStatus.CREATED);
+    @PostMapping("/course/{courseId}")
+    public ResponseEntity<EnrollmentResponse> enroll(
+            @PathVariable Long courseId,
+            @Valid @RequestBody EnrollmentRequest request,
+            @AuthenticationPrincipal User currentUser) {
+        return new ResponseEntity<>(
+                enrollmentService.enrollStudent(courseId, currentUser.getId(), request),
+                HttpStatus.CREATED
+        );
     }
 
     // Get all courses a specific student is in
@@ -44,9 +53,11 @@ public class EnrollmentController {
     }
 
     // Admin: Approve a student
-    @PatchMapping("/{id}/approve")
-    public ResponseEntity<EnrollmentResponse> approve(@PathVariable Long id) {
-        return ResponseEntity.ok(enrollmentService.updateStatus(id, EnrollmentStatus.PAID));
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<EnrollmentResponse> updateEnrollmentStatus(
+            @PathVariable Long id,
+            @Valid @RequestBody ApproveEnrollmentRequest request) {
+        return ResponseEntity.ok(enrollmentService.updateStatus(id, request.status()));
     }
 
     // Admin: Delete/Cancel record
