@@ -27,6 +27,9 @@ public class ExamServiceImpl implements ExamService {
     @Override
     @Transactional
     public ExamResponse createExam(CreateExamRequest request) {
+        if (request.passMarks() > request.maxMarks()) {
+            throw new IllegalArgumentException("Passing marks cannot be greater than maximum marks.");
+        }
         Course course = courseRepo.findById(request.courseId())
                 .orElseThrow(() -> new ResourceNotFoundException("Course not found"));
 
