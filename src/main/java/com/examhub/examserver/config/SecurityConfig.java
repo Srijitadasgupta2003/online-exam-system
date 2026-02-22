@@ -47,6 +47,16 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/enrollments/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/enrollments/**").hasRole("ADMIN")
 
+                        // Exam Access
+                        .requestMatchers(HttpMethod.GET, "/api/v1/exams/**").hasAnyRole("STUDENT", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/exams/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/exams/**").hasRole("ADMIN")
+
+                        // Question Access
+                        .requestMatchers(HttpMethod.GET, "/api/v1/questions/**").hasAnyRole("STUDENT", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/questions/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/questions/**").hasRole("ADMIN")
+
                         // Broad Prefix Rules (Catch-all for Dashboards/Profiles)
                         .requestMatchers("/api/v1/student/**").hasRole("STUDENT")
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
