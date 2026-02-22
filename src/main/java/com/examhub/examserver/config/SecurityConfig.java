@@ -42,11 +42,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/courses/**").hasRole("ADMIN")
 
                         // Enrollment Access
-                        .requestMatchers(HttpMethod.POST, "/api/v1/enrollments/**").hasRole("STUDENT")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/enrollments//course/{courseId}").hasRole("STUDENT")
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/enrollments/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/enrollments/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/v1/enrollments/course/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/v1/enrollments/user/**").hasAnyRole("STUDENT", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/enrollments").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/enrollments/{id}/unlock").hasRole("ADMIN")
 
                         // Exam Access
                         .requestMatchers(HttpMethod.GET, "/api/v1/exams/**").hasAnyRole("STUDENT", "ADMIN")

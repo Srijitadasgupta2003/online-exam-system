@@ -24,4 +24,6 @@ public interface EnrollmentService {
 
     // Cancel an enrollment
     void cancelEnrollment(Long enrollmentId);
+
+    void unlockCourse(Long enrollmentId);
 }

@@ -8,5 +8,7 @@ public enum EnrollmentStatus {
     // Access has been revoked or frozen by the Admin.
     LOCKED,
     // Blocks a student.
-    CANCELLED
+    CANCELLED,
+    // Triggered when failedAttempts reaches 3
+    EXAM_LOCKED
 }

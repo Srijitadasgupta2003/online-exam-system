@@ -110,6 +110,22 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         return enrollmentMapper.toResponse(updatedEnrollment);
     }
 
+    @Override
+    @Transactional
+    public void unlockCourse(Long enrollmentId) {
+        Enrollment enrollment = enrollmentRepo.findById(enrollmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Enrollment not found"));
+
+        if (enrollment.getStatus() != EnrollmentStatus.EXAM_LOCKED) {
+            throw new IllegalStateException("This course is not currently locked.");
+        }
+
+        // Reset from 3 fails back to 2, granting exactly 1 more attempt across the course
+        enrollment.setFailedAttempts(2);
+        enrollment.setStatus(EnrollmentStatus.PAID);
+        enrollmentRepo.save(enrollment);
+    }
+
     // Additional method to clear 'findByStatus' warning
     @Transactional(readOnly = true)
     public List<EnrollmentResponse> getEnrollmentsByStatus(EnrollmentStatus status) {

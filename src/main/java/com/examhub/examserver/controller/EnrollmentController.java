@@ -46,6 +46,12 @@ public class EnrollmentController {
         return ResponseEntity.ok(enrollmentService.getEnrollmentsByCourse(courseId));
     }
 
+    @PostMapping("/{id}/unlock")
+    public ResponseEntity<String> unlockCourse(@PathVariable Long id) {
+        enrollmentService.unlockCourse(id);
+        return ResponseEntity.ok("Course successfully unlocked for the student. They have 1 attempt remaining.");
+    }
+
     // Admin: View all pending requests
     @GetMapping
     public ResponseEntity<List<EnrollmentResponse>> getAllEnrollmentRequests() {

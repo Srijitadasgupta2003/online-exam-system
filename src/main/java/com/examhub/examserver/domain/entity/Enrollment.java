@@ -43,6 +43,11 @@ public class Enrollment {
     @Column(name = "transaction_reference")
     private String transactionReference; // Optional field for tracking
 
+    // Tracks failures across the course for the 3-strike rule
+    @Column(name = "failed_attempts", nullable = false)
+    @Builder.Default // Ensures Builder pattern respects the default value
+    private int failedAttempts = 0;
+
     private LocalDateTime createdAt;
 
     @PrePersist
