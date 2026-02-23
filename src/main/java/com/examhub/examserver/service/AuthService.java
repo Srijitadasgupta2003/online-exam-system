@@ -1,8 +1,6 @@
 package com.examhub.examserver.service;
 
-import com.examhub.examserver.domain.dto.auth.AuthResponse;
-import com.examhub.examserver.domain.dto.auth.LoginRequest;
-import com.examhub.examserver.domain.dto.auth.RegisterRequest;
+import com.examhub.examserver.domain.dto.auth.*;
 
 public interface AuthService {
 
@@ -11,4 +9,10 @@ public interface AuthService {
 
     //Authenticates existing users and generates a fresh JWT token.
     AuthResponse login(LoginRequest request);
+
+    // Verifies user email, generates a unique non-guessable UUID token
+    void forgotPassword(ForgotPasswordRequest request);
+
+    //Validates the reset token for existence and expiration
+    void resetPassword(ResetPasswordRequest request);
 }
