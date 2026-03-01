@@ -19,9 +19,12 @@ public class ExamController {
     private final ExamService examService;
 
     // Admin: Create a new exam container
-    @PostMapping
-    public ResponseEntity<ExamResponse> createExam(@Valid @RequestBody CreateExamRequest request) {
-        return new ResponseEntity<>(examService.createExam(request), HttpStatus.CREATED);
+    @PostMapping("/course/{courseId}")
+    public ResponseEntity<ExamResponse> createExam(
+            @PathVariable Long courseId,
+            @Valid @RequestBody CreateExamRequest request
+    ) {
+        return new ResponseEntity<>(examService.createExam(courseId, request), HttpStatus.CREATED);
     }
 
     // Both: Get all exams for a specific course

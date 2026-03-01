@@ -3,6 +3,8 @@ package com.examhub.examserver.controller;
 import com.examhub.examserver.domain.dto.response.EnrollmentResponse;
 import com.examhub.examserver.domain.entity.User;
 import com.examhub.examserver.domain.enums.EnrollmentStatus;
+import com.examhub.examserver.exception.ResourceNotFoundException;
+import com.examhub.examserver.repository.UserRepo;
 import com.examhub.examserver.service.EnrollmentService;
 import com.examhub.examserver.domain.dto.student.EnrollmentRequest;
 import com.examhub.examserver.domain.dto.admin.ApproveEnrollmentRequest;
@@ -12,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import java.security.Principal;
 
 import java.util.List;
 
@@ -21,13 +24,22 @@ import java.util.List;
 public class EnrollmentController {
 
     private final EnrollmentService enrollmentService;
+    private final UserRepo userRepo;
 
     // Student joins a course
     @PostMapping("/course/{courseId}")
     public ResponseEntity<EnrollmentResponse> enroll(
             @PathVariable Long courseId,
             @Valid @RequestBody EnrollmentRequest request,
-            @AuthenticationPrincipal User currentUser) {
+            Principal principal) {
+        // principal.getName() is the email verified by your original JwtFilter
+        String email = principal.getName();
+
+        // Fetch the user manually to ensure the ID is valid and not null
+        User currentUser = userRepo.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        // Pass the valid ID to your service layer
         return new ResponseEntity<>(
                 enrollmentService.enrollStudent(courseId, currentUser.getId(), request),
                 HttpStatus.CREATED
@@ -44,6 +56,12 @@ public class EnrollmentController {
     @GetMapping("/course/{courseId}")
     public ResponseEntity<List<EnrollmentResponse>> getCourseEnrollments(@PathVariable Long courseId) {
         return ResponseEntity.ok(enrollmentService.getEnrollmentsByCourse(courseId));
+    }
+
+    @GetMapping("/status/{status}")
+    public ResponseEntity<List<EnrollmentResponse>> getEnrollmentsByStatus(@PathVariable EnrollmentStatus status) {
+        List<EnrollmentResponse> responses = enrollmentService.getEnrollmentsByStatus(status);
+        return ResponseEntity.ok(responses);
     }
 
     @PostMapping("/{id}/unlock")
