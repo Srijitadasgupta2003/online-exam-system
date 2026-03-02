@@ -4,6 +4,7 @@ import com.examhub.examserver.domain.dto.admin.CreateCourseRequest;
 import com.examhub.examserver.domain.dto.response.CourseResponse;
 import com.examhub.examserver.domain.entity.Course;
 import com.examhub.examserver.exception.ResourceNotFoundException;
+import com.examhub.examserver.exception.UserAlreadyExistsException;
 import com.examhub.examserver.mapper.CourseMapper;
 import com.examhub.examserver.repository.CourseRepo;
 import com.examhub.examserver.service.CourseService;
@@ -24,6 +25,9 @@ public class CourseServiceImpl implements CourseService {
     @Override
     @Transactional
     public CourseResponse createCourse(CreateCourseRequest request) {
+        if (courseRepo.existsByTitle(request.title())) {
+            throw new UserAlreadyExistsException("Course with this title already exists");
+        }
         Course course = courseMapper.toEntity(request);
         return courseMapper.toResponse(courseRepo.save(course));
     }

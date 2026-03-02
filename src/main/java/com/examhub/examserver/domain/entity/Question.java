@@ -2,6 +2,7 @@ package com.examhub.examserver.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "questions")
@@ -13,7 +14,7 @@ import lombok.*;
 public class Question {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @Column(columnDefinition = "TEXT", nullable = false)
@@ -30,5 +31,6 @@ public class Question {
     // Many Questions belong to one Exam
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "exam_id", nullable = false)
+    @JsonIgnore
     private Exam exam;
 }

@@ -51,13 +51,19 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.BAD_REQUEST, "Time Expired", ex.getMessage());
     }
 
-    // Handle Duplicate Enrollments (Database Unique Constraint Violation)
+    // Handle Database Unique Constraint Violations dynamically
     @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
     public ResponseEntity<Object> handleDataIntegrity(org.springframework.dao.DataIntegrityViolationException ex) {
+
+        // Grab the deep, raw database error string
+        String rawError = ex.getMostSpecificCause() != null
+                ? ex.getMostSpecificCause().getMessage()
+                : ex.getMessage();
+
         return buildResponse(
                 HttpStatus.CONFLICT,
-                "Already Enrolled",
-                "You have already submitted a request for this course."
+                "Database Conflict",
+                "RAW ERROR: " + rawError // This will now pop up in your React alert!
         );
     }
 

@@ -33,28 +33,28 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(request -> {
                     var corsConfiguration = new org.springframework.web.cors.CorsConfiguration();
                     corsConfiguration.setAllowedOrigins(List.of("http://localhost:5173"));
-                    corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH"));
+                    // FIX 1: "OPTIONS" has been added here
+                    corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
                     corsConfiguration.setAllowedHeaders(List.of("*"));
                     corsConfiguration.setAllowCredentials(true);
                     return corsConfiguration;
                 }))
 
-                // Disable CSRF (Cross-Site Request Forgery)
                 .csrf(AbstractHttpConfigurer::disable)
 
-                // Configure URL Permissions
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/api/v1/users/me").authenticated()
 
+                        // FIX 2: Exact paths added alongside /**
                         // Course Access
-                        .requestMatchers(HttpMethod.GET, "/api/v1/courses/**").hasAnyRole("STUDENT", "ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/courses/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/courses", "/api/v1/courses/**").hasAnyRole("STUDENT", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/courses", "/api/v1/courses/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/courses/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/courses/**").hasRole("ADMIN")
 
                         // Enrollment Access
-                        .requestMatchers(HttpMethod.POST, "/api/v1/enrollments//course/{courseId}").hasRole("STUDENT")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/enrollments/course/**").hasRole("STUDENT")
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/enrollments/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/enrollments/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/v1/enrollments/course/**").hasRole("ADMIN")
@@ -62,14 +62,15 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/enrollments").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/v1/enrollments/{id}/unlock").hasRole("ADMIN")
 
+                        // FIX 2 CONTINUED: Exact paths added here too
                         // Exam Access
-                        .requestMatchers(HttpMethod.GET, "/api/v1/exams/**").hasAnyRole("STUDENT", "ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/exams/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/exams", "/api/v1/exams/**").hasAnyRole("STUDENT", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/exams", "/api/v1/exams/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/exams/**").hasRole("ADMIN")
 
                         // Question Access
-                        .requestMatchers(HttpMethod.GET, "/api/v1/questions/**").hasAnyRole("STUDENT", "ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/questions/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/questions", "/api/v1/questions/**").hasAnyRole("STUDENT", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/questions", "/api/v1/questions/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/questions/**").hasRole("ADMIN")
 
                         // Broad Prefix Rules (Catch-all for Dashboards/Profiles)
@@ -79,12 +80,9 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
 
-                // Make the session Stateless
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-
-                // Plug in custom authentication and JWT filter
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
