@@ -1,0 +1,90 @@
+package com.examhub.examserver.service.impl;
+
+import com.examhub.examserver.domain.dto.admin.CreateCourseRequest;
+import com.examhub.examserver.domain.dto.response.CourseResponse;
+import com.examhub.examserver.domain.entity.Course;
+import com.examhub.examserver.exception.ResourceNotFoundException;
+import com.examhub.examserver.exception.UserAlreadyExistsException;
+import com.examhub.examserver.mapper.CourseMapper;
+import com.examhub.examserver.repository.CourseRepo;
+import com.examhub.examserver.repository.ExamSubmissionRepo;
+import com.examhub.examserver.service.CourseService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class CourseServiceImpl implements CourseService {
+
+    private final CourseRepo courseRepo;
+    private final CourseMapper courseMapper;
+    private final ExamSubmissionRepo examSubmissionRepo;
+
+    @Override
+    @Transactional
+    public CourseResponse createCourse(CreateCourseRequest request) {
+        if (courseRepo.existsByTitle(request.title())) {
+            throw new UserAlreadyExistsException("Course with this title already exists");
+        }
+        Course course = courseMapper.toEntity(request);
+        return courseMapper.toResponse(courseRepo.save(course));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CourseResponse> getAllCourses() {
+        return courseRepo.findByActiveTrueAndArchivedFalse().stream()
+                .map(courseMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    // Admin: Get all courses including inactive ones (for admin dashboard)
+    @Override
+    @Transactional(readOnly = true)
+    public List<CourseResponse> getAllCoursesForAdmin() {
+        return courseRepo.findByArchivedFalse().stream()
+                .map(courseMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    // Get all archived courses
+    @Transactional(readOnly = true)
+    public List<CourseResponse> getArchivedCourses() {
+        return courseRepo.findByArchivedTrue().stream()
+                .map(courseMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public CourseResponse getCourseById(Long id) {
+        return courseRepo.findById(id)
+                .map(courseMapper::toResponse)
+                .orElseThrow(() -> new ResourceNotFoundException("Course not found with id: " + id));
+    }
+
+    @Override
+    @Transactional
+    public CourseResponse updateCourse(Long id, CreateCourseRequest request) {
+        Course existingCourse = courseRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Course not found with id: " + id));
+
+        courseMapper.updateEntity(request, existingCourse);
+        return courseMapper.toResponse(courseRepo.save(existingCourse));
+    }
+
+    @Override
+    @Transactional
+    public void deleteCourse(Long id) {
+        Course course = courseRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Course not found with id: " + id));
+        // Soft delete: mark as archived instead of deleting
+        course.setArchived(true);
+        course.setActive(false);
+        courseRepo.save(course);
+    }
+}
