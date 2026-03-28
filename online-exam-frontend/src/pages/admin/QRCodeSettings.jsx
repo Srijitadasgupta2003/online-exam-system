@@ -84,7 +84,7 @@ const QRCodeSettings = () => {
         <div className="mb-6">
           <p className="text-sm text-gray-400 mb-2">Current QR Code:</p>
           <img 
-            src="http://localhost:8080/api/v1/admin/qr-code/image" 
+            src={`${api.defaults.baseURL}/admin/qr-code/image`} 
             alt="Current QR Code" 
             className="w-48 h-48 object-contain bg-gray-700 p-2 rounded-lg border border-gray-600"
             onError={(e) => { e.target.style.display = 'none'; }}

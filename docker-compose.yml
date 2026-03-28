@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  # Backend service
+  backend:
+    build: ./examserver
+    container_name: examhub-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_URL=${DB_URL}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - ADMIN_REGISTRATION_CODE=${ADMIN_REGISTRATION_CODE}
+      - CORS_ALLOWED_ORIGINS=http://localhost:3000
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+    restart: unless-stopped
+
+  # Frontend service
+  frontend:
+    build: ./online-exam-frontend
+    container_name: examhub-frontend
+    ports:
+      - "3000:80"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8080/api/v1
+    depends_on:
+      - backend
+    restart: unless-stopped

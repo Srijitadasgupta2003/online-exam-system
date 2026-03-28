@@ -15,8 +15,6 @@ import java.util.Optional;
 @Repository
 public interface EnrollmentRepo extends JpaRepository<Enrollment, Long> {
 
-    // ============ N+1 FIX: JOIN FETCH QUERIES ============
-
     // Fetches enrollments with course and user to avoid N+1
     @Query("SELECT e FROM Enrollment e " +
            "JOIN FETCH e.course " +
@@ -28,7 +26,7 @@ public interface EnrollmentRepo extends JpaRepository<Enrollment, Long> {
     @Query("SELECT e FROM Enrollment e " +
            "JOIN FETCH e.course " +
            "JOIN FETCH e.user " +
-           "WHERE e.user.id = :userId AND e.archived = false")
+           "WHERE e.user.id = :userId AND (e.archived = false OR e.archived IS NULL)")
     List<Enrollment> findByUserIdWithDetails(@Param("userId") Long userId);
 
     // Fetches enrollments with course and user to avoid N+1

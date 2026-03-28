@@ -1,0 +1,23 @@
+# Build artifacts
+target/
+*.jar
+*.war
+
+# Environment files
+.env
+.env.*
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+
+# Git
+.git/
+.gitignore
+
+# Logs
+*.log
+
+# Maven wrapper
+.mvn/wrapper/maven-wrapper.jar

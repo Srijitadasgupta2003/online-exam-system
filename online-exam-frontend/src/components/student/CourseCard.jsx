@@ -91,7 +91,7 @@ const CourseCard = ({ course, type, onPurchase }) => {
                 <div className="bg-gray-800/50 p-4 rounded-lg border-2 border-dashed border-gray-600 text-center">
                   <p className="text-xs font-bold text-gray-400 uppercase mb-2">Scan to Pay ₹{course.price}</p>
                   <img 
-                    src="http://localhost:8080/api/v1/admin/qr-code/image" 
+                    src={`${api.defaults.baseURL}/admin/qr-code/image`} 
                     alt="Payment QR Code" 
                     className="mx-auto w-48 h-48 object-contain shadow-sm bg-gray-700 p-2 rounded"
                   />
