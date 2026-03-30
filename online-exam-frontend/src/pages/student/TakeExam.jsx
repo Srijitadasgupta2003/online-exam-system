@@ -81,13 +81,6 @@ const TakeExam = () => {
   });
   const warningsRef = useRef(0);
   const submittingRef = useRef(false);
-
-
-  useEffect(() => {
-    warningsRef.current = warnings;
-  }, []);
-
-
   const [result, setResult] = useState(null);
 
 
@@ -175,6 +168,12 @@ const TakeExam = () => {
     warningsRef.current += 1;
     const newCount = warningsRef.current;
     setWarnings(newCount);
+
+    useEffect(() => {
+  if (screen !== 'exam') return;
+  document.addEventListener('visibilitychange', handleWarning);
+  return () => document.removeEventListener('visibilitychange', handleWarning);
+}, [screen, handleWarning]);
 
     if (newCount === 1) {
       alert("Warning 1/3: Tab switching detected. 2 more warnings will auto-submit your exam.");
