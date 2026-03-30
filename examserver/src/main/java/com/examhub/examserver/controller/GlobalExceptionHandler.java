@@ -63,7 +63,7 @@ public class GlobalExceptionHandler {
         return buildResponse(
                 HttpStatus.CONFLICT,
                 "Database Conflict",
-                "RAW ERROR: " + rawError // This will now pop up in your React alert!
+                "A data conflict occurred. Please try again."
         );
     }
 

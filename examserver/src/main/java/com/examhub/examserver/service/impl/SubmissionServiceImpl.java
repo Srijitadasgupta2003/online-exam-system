@@ -37,9 +37,8 @@ public class SubmissionServiceImpl implements SubmissionService {
     private final EnrollmentRepo enrollmentRepo;
     private final SubmissionMapper submissionMapper;
 
-    // ========================================
+
     // SAVE-AS-YOU-GO FLOW
-    // ========================================
 
     @Override
     @Transactional
@@ -165,10 +164,6 @@ public class SubmissionServiceImpl implements SubmissionService {
         ).orElseThrow(() -> new ResourceNotFoundException("No active submission found. Please start the exam first."));
     }
 
-    // ========================================
-    // LEGACY FLOW (kept for backward compatibility)
-    // ========================================
-
     @Override
     @Transactional
     public ExamResultResponse submitExam(SubmitExamRequest request, User currentUser) {
@@ -243,9 +238,8 @@ public class SubmissionServiceImpl implements SubmissionService {
         return submissionMapper.toExamResultResponse(submissionRepo.save(submission));
     }
 
-    // ========================================
+
     // ADMIN METHODS
-    // ========================================
 
     @Override
     @Transactional
@@ -298,9 +292,8 @@ public class SubmissionServiceImpl implements SubmissionService {
         enrollmentRepo.save(enrollment);
     }
 
-    // ========================================
+
     // RETRIEVAL METHODS
-    // ========================================
 
     @Override
     @Transactional(readOnly = true)

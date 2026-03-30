@@ -84,7 +84,7 @@ public class AuthServiceImpl implements AuthService {
         );
 
         var user = userRepo.findByEmail(request.email())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         var jwtToken = jwtService.generateToken(user);
 
