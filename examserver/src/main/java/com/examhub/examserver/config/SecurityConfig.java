@@ -23,7 +23,7 @@ public class SecurityConfig {
     private final JwtFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
 
-    @Value("${cors.allowed-origins:http://localhost:5173}")
+    @Value("${cors.allowed-origins:http://online-exam-system-zeta-five.vercel.app/}")
     private String corsAllowedOrigins;
 
     //Constructor Injection
