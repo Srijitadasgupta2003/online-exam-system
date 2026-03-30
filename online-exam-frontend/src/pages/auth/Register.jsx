@@ -30,10 +30,10 @@ const Register = () => {
       login(response.data, response.data.token);
       
       if (response.data.role === 'ADMIN') {
-        navigate('/admin/dashboard');
-      } else {
-        navigate('/student/dashboard');
-      }
+  navigate('/admin/dashboard', { replace: true });
+} else {
+  navigate('/student/dashboard', { replace: true });
+}
     } catch (err) {
       const errorData = err.response?.data;
       if (errorData?.errors) {
