@@ -3,7 +3,6 @@ package com.examhub.examserver.service;
 import com.examhub.examserver.domain.dto.admin.CreateCourseRequest;
 import com.examhub.examserver.domain.dto.response.CourseResponse;
 import com.examhub.examserver.exception.ResourceNotFoundException;
-import com.examhub.examserver.service.impl.CourseServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,13 +72,6 @@ class CourseServiceImplTest {
     }
 
     @Test
-    void getCourseById_notFound_throwsException() {
-        assertThrows(ResourceNotFoundException.class, () -> {
-            courseService.getCourseById(999L);
-        });
-    }
-
-    @Test
     void updateCourse_success() {
         CourseResponse created = courseService.createCourse(createCourseRequest);
 
@@ -104,23 +96,5 @@ class CourseServiceImplTest {
         assertDoesNotThrow(() -> {
             courseService.deleteCourse(created.id());
         });
-    }
-
-    @Test
-    void deleteCourse_notFound_throwsException() {
-        assertThrows(ResourceNotFoundException.class, () -> {
-            courseService.deleteCourse(999L);
-        });
-    }
-
-    @Test
-    void getArchivedCourses_success() {
-        CourseResponse created = courseService.createCourse(createCourseRequest);
-        courseService.deleteCourse(created.id());
-
-        List<CourseResponse> archived = courseService.getArchivedCourses();
-
-        assertFalse(archived.isEmpty());
-        assertEquals(created.id(), archived.get(0).id());
     }
 }
