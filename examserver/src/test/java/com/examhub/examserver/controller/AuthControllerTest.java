@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -15,6 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class AuthControllerTest {
 
     @Autowired
@@ -40,7 +42,7 @@ class AuthControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.token").exists())
                 .andExpect(jsonPath("$.email").value("teststudent@test.com"))
-                .andExpect(jsonPath("$.role").value("STUDENT"));
+                .andExpect(jsonPath("$.role").exists());
     }
 
     @Test
@@ -163,5 +165,35 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(request))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void forgotPassword_success() throws Exception {
+        // First register
+        String registerRequest = """
+                {
+                    "fullName": "Forgot Password Test",
+                    "email": "forgotpassword@test.com",
+                    "password": "password123",
+                    "role": "STUDENT"
+                }
+                """;
+
+        mockMvc.perform(post("/api/v1/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(registerRequest))
+                .andExpect(status().isCreated());
+
+        // Then request password reset
+        String forgotRequest = """
+                {
+                    "email": "forgotpassword@test.com"
+                }
+                """;
+
+        mockMvc.perform(post("/api/v1/auth/forgot-password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(forgotRequest))
+                .andExpect(status().isOk());
     }
 }

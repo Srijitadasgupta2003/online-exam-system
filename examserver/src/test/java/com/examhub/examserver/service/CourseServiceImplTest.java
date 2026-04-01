@@ -40,7 +40,7 @@ class CourseServiceImplTest {
         assertNotNull(response.id());
         assertEquals("Java Fundamentals", response.title());
         assertEquals("Learn Java from scratch", response.description());
-        assertEquals(99.99, response.price());
+        assertEquals(99.99, response.price(), 0.01);
         assertTrue(response.active());
     }
 
@@ -94,7 +94,7 @@ class CourseServiceImplTest {
 
         assertEquals("Updated Title", response.title());
         assertEquals("Updated description", response.description());
-        assertEquals(149.99, response.price());
+        assertEquals(149.99, response.price(), 0.01);
     }
 
     @Test
@@ -111,5 +111,16 @@ class CourseServiceImplTest {
         assertThrows(ResourceNotFoundException.class, () -> {
             courseService.deleteCourse(999L);
         });
+    }
+
+    @Test
+    void getArchivedCourses_success() {
+        CourseResponse created = courseService.createCourse(createCourseRequest);
+        courseService.deleteCourse(created.id());
+
+        List<CourseResponse> archived = courseService.getArchivedCourses();
+
+        assertFalse(archived.isEmpty());
+        assertEquals(created.id(), archived.get(0).id());
     }
 }

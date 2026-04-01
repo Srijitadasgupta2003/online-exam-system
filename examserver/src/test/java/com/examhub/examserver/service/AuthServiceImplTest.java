@@ -1,11 +1,14 @@
 package com.examhub.examserver.service;
 
 import com.examhub.examserver.domain.dto.auth.AuthResponse;
+import com.examhub.examserver.domain.dto.auth.ForgotPasswordRequest;
 import com.examhub.examserver.domain.dto.auth.LoginRequest;
 import com.examhub.examserver.domain.dto.auth.RegisterRequest;
+import com.examhub.examserver.domain.dto.auth.ResetPasswordRequest;
 import com.examhub.examserver.domain.entity.User;
 import com.examhub.examserver.domain.enums.Role;
 import com.examhub.examserver.exception.ResourceNotFoundException;
+import com.examhub.examserver.exception.UnauthorizedException;
 import com.examhub.examserver.exception.UserAlreadyExistsException;
 import com.examhub.examserver.repository.UserRepo;
 import com.examhub.examserver.service.impl.AuthServiceImpl;
@@ -87,7 +90,7 @@ class AuthServiceImplTest {
                 "wrongcode"
         );
 
-        assertThrows(RuntimeException.class, () -> {
+        assertThrows(UnauthorizedException.class, () -> {
             authService.register(adminRequest);
         });
     }
@@ -121,6 +124,26 @@ class AuthServiceImplTest {
 
         assertThrows(ResourceNotFoundException.class, () -> {
             authService.login(loginRequest);
+        });
+    }
+
+    @Test
+    void forgotPassword_success() {
+        authService.register(registerRequest);
+
+        ForgotPasswordRequest request = new ForgotPasswordRequest("student@test.com");
+
+        assertDoesNotThrow(() -> {
+            authService.forgotPassword(request);
+        });
+    }
+
+    @Test
+    void forgotPassword_nonExistentUser_throwsException() {
+        ForgotPasswordRequest request = new ForgotPasswordRequest("nonexistent@test.com");
+
+        assertThrows(ResourceNotFoundException.class, () -> {
+            authService.forgotPassword(request);
         });
     }
 }
