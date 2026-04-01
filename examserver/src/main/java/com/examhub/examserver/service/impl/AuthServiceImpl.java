@@ -20,6 +20,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -107,22 +109,27 @@ public class AuthServiceImpl implements AuthService {
         // Delete any existing token for this user
         tokenRepo.deleteByUser(user);
 
-        // Create new token (Security: UUID is non-guessable)
-        String token = java.util.UUID.randomUUID().toString();
+        // Create new token (Security: UUID is non-guessable, hash before storing)
+        String rawToken = java.util.UUID.randomUUID().toString();
+        String hashedToken = passwordEncoder.encode(rawToken);
         PasswordResetToken resetToken = PasswordResetToken.builder()
-                .token(token)
+                .token(hashedToken)
                 .user(user)
                 .expiryDate(java.time.LocalDateTime.now().plusMinutes(15))
                 .build();
 
         tokenRepo.save(resetToken);
-        emailService.sendPasswordResetEmail(user.getEmail(), token);
+        emailService.sendPasswordResetEmail(user.getEmail(), rawToken); // Send raw token to user
     }
 
     @Override
     @Transactional
     public void resetPassword(ResetPasswordRequest request) {
-        PasswordResetToken resetToken = tokenRepo.findByToken(request.token())
+        // Find all tokens and validate using BCrypt
+        List<PasswordResetToken> allTokens = tokenRepo.findAll();
+        PasswordResetToken resetToken = allTokens.stream()
+                .filter(pt -> passwordEncoder.matches(request.token(), pt.getToken()))
+                .findFirst()
                 .orElseThrow(() -> new UnauthorizedException("Invalid or expired token"));
 
         if (resetToken.isExpired()) {

@@ -40,7 +40,7 @@ public class SecurityConfig {
                     var corsConfiguration = new org.springframework.web.cors.CorsConfiguration();
                     corsConfiguration.setAllowedOrigins(List.of(corsAllowedOrigins));
                     corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-                    corsConfiguration.setAllowedHeaders(List.of("*"));
+                    corsConfiguration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"));
                     corsConfiguration.setAllowCredentials(true);
                     return corsConfiguration;
                 }))
